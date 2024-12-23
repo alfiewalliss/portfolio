@@ -1,14 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
+import ScrollBox from "./components/ScrollBox/ScrollBox.tsx";
+import ScrollAnimatedSection from "./components/ScrollAnimatedSection.tsx";
 
 const App: React.FC = () => {
-  const projects = [
-    "Project One",
-    "Project Two",
-    "Project Three",
-    "Project Four",
-  ];
-
   return (
     <div
       style={{
@@ -16,11 +11,8 @@ const App: React.FC = () => {
         backgroundColor: "#1e1e1e",
         color: "#fff",
         margin: 0,
-        border: "1px solid red",
-        height: "100vh",
       }}
     >
-      {/* Header Section */}
       <motion.header
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -36,7 +28,6 @@ const App: React.FC = () => {
         Welcome to My Portfolio
       </motion.header>
 
-      {/* Navigation */}
       <motion.nav
         initial="hidden"
         animate="visible"
@@ -70,21 +61,29 @@ const App: React.FC = () => {
         ))}
       </motion.nav>
 
-      {/* Projects Section */}
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
         style={{
-          padding: "2rem",
+          padding: "0 2rem 2rem 2rem",
           textAlign: "center",
+          overflow: "scroll",
         }}
       >
-        <h2
-          style={{ marginBottom: "1.5rem", fontSize: "2rem", color: "#007bff" }}
+        <motion.div
+          style={{
+            marginBottom: "1.5rem",
+            fontSize: "2rem",
+            color: "#007bff",
+            height: "calc(100vh - 123px)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
         >
           My Projects
-        </h2>
+        </motion.div>
         <motion.div
           initial="hidden"
           animate="visible"
@@ -100,32 +99,12 @@ const App: React.FC = () => {
             gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
             gap: "1.5rem",
           }}
-        >
-          {projects.map((project, index) => (
-            <motion.div
-              key={index}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              style={{
-                padding: "1rem",
-                backgroundColor: "#282c34",
-                borderRadius: "10px",
-                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
-              }}
-            >
-              <h3 style={{ color: "#007bff", marginBottom: "0.5rem" }}>
-                {project}
-              </h3>
-              <p style={{ fontSize: "0.9rem" }}>
-                A brief description of {project.toLowerCase()}. This is a
-                placeholder for now.
-              </p>
-            </motion.div>
-          ))}
-        </motion.div>
+        />
+        <ScrollBox />
+        <ScrollAnimatedSection />
+        <ScrollAnimatedSection />
+        <ScrollAnimatedSection />
+        <ScrollAnimatedSection />
       </motion.section>
     </div>
   );

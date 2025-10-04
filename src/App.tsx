@@ -170,28 +170,75 @@ const App: React.FC = () => {
       {/* Header */}
       <div
         style={{
-          background: "rgba(255, 255, 255, 0.95)",
-          backdropFilter: "blur(10px)",
-          padding: "2rem 0",
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-          marginBottom: "2rem",
+          background:
+            "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
+          backdropFilter: "blur(20px)",
+          border: "1px solid rgba(255, 255, 255, 0.2)",
+          padding: "3rem 0",
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+          marginBottom: "3rem",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
         <div
-          style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 2rem" }}
+          style={{
+            maxWidth: "1400px",
+            margin: "0 auto",
+            padding: "0 2rem",
+            position: "relative",
+            zIndex: 2,
+          }}
         >
           <h1
             style={{
-              fontSize: "2.5rem",
-              fontWeight: "700",
+              fontSize: "3rem",
+              fontWeight: "800",
               margin: "0",
               textAlign: "center",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              letterSpacing: "-0.02em",
+              lineHeight: "1.1",
               color: "#00b8a3",
             }}
           >
             Tech Running Leaderboard
           </h1>
+          <div
+            style={{
+              width: "60px",
+              height: "4px",
+              margin: "1rem auto 0",
+              borderRadius: "2px",
+            }}
+          />
         </div>
+        {/* Background decoration */}
+        <div
+          style={{
+            position: "absolute",
+            top: "-50%",
+            right: "-20%",
+            width: "300px",
+            height: "300px",
+            borderRadius: "50%",
+            zIndex: 1,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            bottom: "-30%",
+            left: "-10%",
+            width: "200px",
+            height: "200px",
+            background:
+              "radial-gradient(circle, rgba(0, 168, 150, 0.1) 0%, transparent 70%)",
+            borderRadius: "50%",
+            zIndex: 1,
+          }}
+        />
       </div>
 
       <div
@@ -219,19 +266,29 @@ const App: React.FC = () => {
               <div style={{ marginBottom: "3rem" }}>
                 <h2
                   style={{
-                    color: "#2d3748",
-                    marginBottom: "1.5rem",
-                    fontSize: "1.8rem",
-                    fontWeight: "600",
+                    color: "#1a202c",
+                    marginBottom: "2rem",
+                    fontSize: "2rem",
+                    fontWeight: "700",
+                    letterSpacing: "-0.01em",
+                    position: "relative",
                   }}
                 >
-                  🏆 Distance Leaderboard
+                  <span
+                    style={{
+                      WebkitBackgroundClip: "text",
+                      backgroundClip: "text",
+                    }}
+                  >
+                    🏆 Distance Leaderboard
+                  </span>
                 </h2>
                 <div
                   style={{
                     display: "grid",
                     gap: "1rem",
-                    maxHeight: "calc(500px + 2rem)",
+                    padding: "2rem",
+                    maxHeight: "calc(500px )",
                     overflow: "scroll",
                   }}
                 >
@@ -242,7 +299,7 @@ const App: React.FC = () => {
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        padding: "1.5rem",
+                        padding: "2rem",
                         background:
                           index < 3
                             ? `linear-gradient(135deg, ${
@@ -258,34 +315,37 @@ const App: React.FC = () => {
                                   ? "#A8A8A8"
                                   : "#B8860B"
                               } 100%)`
-                            : "rgba(255, 255, 255, 0.95)",
+                            : "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
                         border:
                           index < 3
                             ? "none"
                             : "1px solid rgba(255, 255, 255, 0.2)",
-                        borderRadius: "16px",
+                        borderRadius: "24px",
                         boxShadow:
                           index < 3
-                            ? "0 8px 32px rgba(0, 0, 0, 0.15)"
-                            : "0 4px 20px rgba(0, 0, 0, 0.1)",
-                        backdropFilter: "blur(10px)",
-                        transition: "all 0.3s ease",
+                            ? "0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)"
+                            : "0 8px 32px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+                        backdropFilter: "blur(20px)",
+                        transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
                         position: "relative",
                         overflow: "hidden",
+                        cursor: "pointer",
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = "translateY(-2px)";
+                        e.currentTarget.style.transform =
+                          "translateY(-8px) scale(1.02)";
                         e.currentTarget.style.boxShadow =
                           index < 3
-                            ? "0 12px 40px rgba(0, 0, 0, 0.2)"
-                            : "0 8px 32px rgba(0, 0, 0, 0.15)";
+                            ? "0 32px 64px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.2)"
+                            : "0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)";
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "translateY(0)";
+                        e.currentTarget.style.transform =
+                          "translateY(0) scale(1)";
                         e.currentTarget.style.boxShadow =
                           index < 3
-                            ? "0 8px 32px rgba(0, 0, 0, 0.15)"
-                            : "0 4px 20px rgba(0, 0, 0, 0.1)";
+                            ? "0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)"
+                            : "0 8px 32px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05)";
                       }}
                     >
                       <div
@@ -297,20 +357,28 @@ const App: React.FC = () => {
                       >
                         <div
                           style={{
-                            width: "48px",
-                            height: "48px",
+                            width: "56px",
+                            height: "56px",
                             borderRadius: "50%",
                             background:
                               index < 3
-                                ? "rgba(255, 255, 255, 0.3)"
-                                : "rgba(37, 150, 190, 0.1)",
+                                ? "rgba(255, 255, 255, 0.4)"
+                                : "linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             fontSize: "1.5rem",
-                            fontWeight: "700",
-                            color: index < 3 ? "#2d3748" : "#2596be",
-                            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                            fontWeight: "800",
+                            color: "#2d3748",
+                            boxShadow:
+                              index < 3
+                                ? "0 8px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)"
+                                : "0 8px 24px rgba(102, 126, 234, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+                            border:
+                              index < 3
+                                ? "2px solid rgba(255, 255, 255, 0.3)"
+                                : "2px solid rgba(102, 126, 234, 0.2)",
+                            transition: "all 0.3s ease",
                           }}
                         >
                           {index + 1}
@@ -318,28 +386,31 @@ const App: React.FC = () => {
                         <div>
                           <div
                             style={{
-                              fontSize: "1.25rem",
-                              fontWeight: "600",
-                              color: index < 3 ? "#2d3748" : "#4a5568",
-                              marginBottom: "0.25rem",
+                              fontSize: "1.4rem",
+                              fontWeight: "700",
+                              color: index < 3 ? "#2d3748" : "#1a202c",
+                              marginBottom: "0.5rem",
+                              letterSpacing: "-0.01em",
                             }}
                           >
                             {entry.name}
                           </div>
                           <div
                             style={{
-                              fontSize: "0.875rem",
-                              color: index < 3 ? "#4a5568" : "#718096",
-                              marginBottom: "0.25rem",
+                              fontSize: "0.9rem",
+                              color: index < 3 ? "#4a5568" : "#4a5568",
+                              marginBottom: "0.5rem",
+                              fontWeight: "500",
                             }}
                           >
                             {entry.activityCount} activities
                           </div>
                           <div
                             style={{
-                              fontSize: "0.75rem",
-                              color: index < 3 ? "#3b3a39" : "#a0aec0",
+                              fontSize: "0.8rem",
+                              color: index < 3 ? "#3b3a39" : "#718096",
                               fontStyle: "italic",
+                              fontWeight: "400",
                             }}
                           >
                             Updated:{" "}
@@ -349,22 +420,33 @@ const App: React.FC = () => {
                       </div>
                       <div
                         style={{
-                          fontSize: "1.5rem",
-                          fontWeight: "700",
-                          color: index < 3 ? "#2d3748" : "#2596be",
+                          fontSize: "1.8rem",
+                          fontWeight: "800",
+                          color: "#2d3748",
                           textAlign: "right",
+                          letterSpacing: "-0.02em",
                         }}
                       >
                         <div
                           style={{
-                            fontSize: "0.875rem",
-                            fontWeight: "500",
-                            opacity: "0.8",
+                            fontSize: "0.9rem",
+                            fontWeight: "600",
+                            opacity: "0.7",
+                            marginBottom: "0.25rem",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.05em",
                           }}
                         >
                           Total Distance
                         </div>
-                        {entry.totalDistance.toFixed(1)} km
+                        <div
+                          style={{
+                            WebkitBackgroundClip: "text",
+                            backgroundClip: "text",
+                          }}
+                        >
+                          {entry.totalDistance.toFixed(1)} km
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -376,23 +458,36 @@ const App: React.FC = () => {
             <div style={{ flex: "1", minWidth: "450px" }}>
               <h2
                 style={{
-                  color: "#2d3748",
-                  marginBottom: "1.5rem",
-                  fontSize: "1.8rem",
-                  fontWeight: "600",
+                  color: "#1a202c",
+                  marginBottom: "2rem",
+                  fontSize: "2rem",
+                  fontWeight: "700",
+                  letterSpacing: "-0.01em",
+                  position: "relative",
                 }}
               >
-                📈 Cumulative Distance Over Time
+                <span
+                  style={{
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                  }}
+                >
+                  📈 Cumulative Distance Over Time
+                </span>
               </h2>
               <div
                 style={{
-                  background: "rgba(255, 255, 255, 0.95)",
-                  borderRadius: "20px",
-                  padding: "2rem",
-                  boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
-                  backdropFilter: "blur(10px)",
+                  background:
+                    "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
+                  borderRadius: "24px",
+                  padding: "2.5rem",
+                  boxShadow:
+                    "0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1)",
+                  backdropFilter: "blur(20px)",
                   height: "500px",
                   border: "1px solid rgba(255, 255, 255, 0.2)",
+                  position: "relative",
+                  overflow: "hidden",
                 }}
               >
                 <ResponsiveContainer width="100%" height="100%">
@@ -450,14 +545,14 @@ const App: React.FC = () => {
                     />
                     {leaderboard.map((entry, index) => {
                       const colors = [
-                        "#E74C3C", // Dark red
-                        "#2ECC71", // Dark green
-                        "#3498DB", // Dark blue
-                        "#9B59B6", // Dark purple
-                        "#F39C12", // Dark orange
-                        "#E67E22", // Darker orange
-                        "#1ABC9C", // Dark teal
-                        "#34495E", // Dark gray
+                        "#00b8a3", // Teal
+                        "#00a896", // Darker teal
+                        "#20c997", // Light teal
+                        "#17a2b8", // Blue teal
+                        "#6f42c1", // Purple
+                        "#e83e8c", // Pink
+                        "#fd7e14", // Orange
+                        "#28a745", // Green
                       ];
                       return (
                         <Line
@@ -465,9 +560,23 @@ const App: React.FC = () => {
                           type="linear"
                           dataKey={entry.name}
                           stroke={colors[index % colors.length]}
-                          strokeWidth={2}
-                          dot={{ r: 4 }}
-                          activeDot={{ r: 6 }}
+                          strokeWidth={3}
+                          dot={{
+                            r: 5,
+                            fill: colors[index % colors.length],
+                            strokeWidth: 2,
+                            stroke: "#fff",
+                          }}
+                          activeDot={{
+                            r: 8,
+                            fill: colors[index % colors.length],
+                            strokeWidth: 3,
+                            stroke: "#fff",
+                            filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2))",
+                          }}
+                          style={{
+                            filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
+                          }}
                         />
                       );
                     })}

@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "SQL Page Data Collector",
+  "version": "1.0",
+  "description": "Collects data from SQL-related web pages.",
+  "permissions": ["tabs", "scripting"],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.strava.com/athletes/46048265*",
+        "https://www.strava.com/athletes/116093133*",
+        "https://www.strava.com/athletes/52568829",
+        "https://www.strava.com/athletes/80395176*",
+        "https://www.strava.com/athletes/52574369*",
+        "https://www.strava.com/athletes/83786875*",
+        "https://www.strava.com/athletes/55710489*",
+        "https://www.strava.com/athletes/135110733*"
+      ],
+      "js": ["content.js"]
+    }
+  ]
+}

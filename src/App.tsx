@@ -556,9 +556,11 @@ const App: React.FC = () => {
                       contentStyle={{
                         background: "rgba(255, 255, 255, 0.95)",
                         border: "none",
-                        borderRadius: "12px",
-                        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.15)",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
                         backdropFilter: "blur(10px)",
+                        fontSize: "12px",
+                        padding: "8px 12px",
                       }}
                       formatter={(value: any, name: string) => [
                         `${value.toFixed(1)} km`,
@@ -566,8 +568,7 @@ const App: React.FC = () => {
                       ]}
                       labelFormatter={(label) => {
                         const date = new Date(label);
-                        return `Date: ${date.toLocaleDateString("en-US", {
-                          year: "numeric",
+                        return `${date.toLocaleDateString("en-GB", {
                           month: "short",
                           day: "numeric",
                         })}`;
@@ -575,20 +576,21 @@ const App: React.FC = () => {
                     />
                     <Legend
                       wrapperStyle={{
-                        paddingTop: "1rem",
-                        fontSize: "14px",
+                        paddingTop: "0.5rem",
+                        fontSize: "11px",
+                        fontWeight: "500",
                       }}
                     />
                     {leaderboard.map((entry, index) => {
                       const colors = [
-                        "#00b8a3", // Teal
-                        "#00a896", // Darker teal
-                        "#20c997", // Light teal
-                        "#17a2b8", // Blue teal
-                        "#6f42c1", // Purple
-                        "#e83e8c", // Pink
-                        "#fd7e14", // Orange
-                        "#28a745", // Green
+                        "#00b8a3", // Primary teal
+                        "#dc3545", // High contrast red
+                        "#007bff", // High contrast blue
+                        "#6f42c1", // High contrast purple
+                        "#fd7e14", // High contrast orange
+                        "#28a745", // High contrast green
+                        "#e83e8c", // High contrast pink
+                        "#17a2b8", // High contrast cyan
                       ];
                       return (
                         <Line

@@ -43,6 +43,7 @@ const App: React.FC = () => {
   >();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   // Calculate leaderboard data
   const calculateLeaderboard = (): LeaderboardEntry[] => {
@@ -118,6 +119,16 @@ const App: React.FC = () => {
 
   const timeSeriesData = processTimeSeriesData();
 
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // Fetch data from Firebase endpoint
   useEffect(() => {
     const fetchData = async () => {
@@ -174,9 +185,9 @@ const App: React.FC = () => {
             "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
           backdropFilter: "blur(20px)",
           border: "1px solid rgba(255, 255, 255, 0.2)",
-          padding: "3rem 0",
+          padding: windowWidth <= 768 ? "2rem 0" : "3rem 0",
           boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
-          marginBottom: "3rem",
+          marginBottom: windowWidth <= 768 ? "2rem" : "3rem",
           position: "relative",
           overflow: "hidden",
         }}
@@ -185,14 +196,14 @@ const App: React.FC = () => {
           style={{
             maxWidth: "1400px",
             margin: "0 auto",
-            padding: "0 2rem",
+            padding: windowWidth <= 768 ? "0 1rem" : "0 2rem",
             position: "relative",
             zIndex: 2,
           }}
         >
           <h1
             style={{
-              fontSize: "3rem",
+              fontSize: windowWidth <= 768 ? "2rem" : "3rem",
               fontWeight: "800",
               margin: "0",
               textAlign: "center",
@@ -242,7 +253,11 @@ const App: React.FC = () => {
       </div>
 
       <div
-        style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 2rem 2rem" }}
+        style={{
+          maxWidth: "1400px",
+          margin: "0 auto",
+          padding: windowWidth <= 768 ? "0 1rem 2rem" : "0 2rem 2rem",
+        }}
       >
         {data?.length === 0 ? (
           <div
@@ -259,16 +274,28 @@ const App: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: windowWidth <= 768 ? "1.5rem" : "2rem",
+              flexWrap: "wrap",
+              flexDirection: windowWidth <= 768 ? "column" : "row",
+            }}
+          >
             {/* Left Column - Leaderboard */}
-            <div style={{ flex: "1", minWidth: "450px" }}>
+            <div
+              style={{
+                flex: "1",
+                minWidth: windowWidth <= 768 ? "100%" : "450px",
+              }}
+            >
               {/* Leaderboard Section */}
               <div style={{ marginBottom: "3rem" }}>
                 <h2
                   style={{
                     color: "#1a202c",
-                    marginBottom: "2rem",
-                    fontSize: "2rem",
+                    marginBottom: windowWidth <= 768 ? "1.5rem" : "2rem",
+                    fontSize: windowWidth <= 768 ? "1.5rem" : "2rem",
                     fontWeight: "700",
                     letterSpacing: "-0.01em",
                     position: "relative",
@@ -286,9 +313,10 @@ const App: React.FC = () => {
                 <div
                   style={{
                     display: "grid",
-                    gap: "1rem",
-                    padding: "2rem",
-                    maxHeight: "calc(500px )",
+                    gap: windowWidth <= 768 ? "0.75rem" : "1rem",
+                    padding: windowWidth <= 768 ? "1rem" : "2rem",
+                    maxHeight:
+                      windowWidth <= 768 ? "calc(400px)" : "calc(500px)",
                     overflow: "scroll",
                   }}
                 >
@@ -299,7 +327,7 @@ const App: React.FC = () => {
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        padding: "2rem",
+                        padding: windowWidth <= 768 ? "1.25rem" : "2rem",
                         background:
                           index < 3
                             ? `linear-gradient(135deg, ${
@@ -357,8 +385,8 @@ const App: React.FC = () => {
                       >
                         <div
                           style={{
-                            width: "56px",
-                            height: "56px",
+                            width: windowWidth <= 768 ? "44px" : "56px",
+                            height: windowWidth <= 768 ? "44px" : "56px",
                             borderRadius: "50%",
                             background:
                               index < 3
@@ -367,7 +395,7 @@ const App: React.FC = () => {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            fontSize: "1.5rem",
+                            fontSize: windowWidth <= 768 ? "1.2rem" : "1.5rem",
                             fontWeight: "800",
                             color: "#2d3748",
                             boxShadow:
@@ -386,7 +414,8 @@ const App: React.FC = () => {
                         <div>
                           <div
                             style={{
-                              fontSize: "1.4rem",
+                              fontSize:
+                                windowWidth <= 768 ? "1.1rem" : "1.4rem",
                               fontWeight: "700",
                               color: index < 3 ? "#2d3748" : "#1a202c",
                               marginBottom: "0.5rem",
@@ -397,7 +426,8 @@ const App: React.FC = () => {
                           </div>
                           <div
                             style={{
-                              fontSize: "0.9rem",
+                              fontSize:
+                                windowWidth <= 768 ? "0.8rem" : "0.9rem",
                               color: index < 3 ? "#4a5568" : "#4a5568",
                               marginBottom: "0.5rem",
                               fontWeight: "500",
@@ -407,7 +437,8 @@ const App: React.FC = () => {
                           </div>
                           <div
                             style={{
-                              fontSize: "0.8rem",
+                              fontSize:
+                                windowWidth <= 768 ? "0.7rem" : "0.8rem",
                               color: index < 3 ? "#3b3a39" : "#718096",
                               fontStyle: "italic",
                               fontWeight: "400",
@@ -420,7 +451,7 @@ const App: React.FC = () => {
                       </div>
                       <div
                         style={{
-                          fontSize: "1.8rem",
+                          fontSize: windowWidth <= 768 ? "1.4rem" : "1.8rem",
                           fontWeight: "800",
                           color: "#2d3748",
                           textAlign: "right",
@@ -429,7 +460,7 @@ const App: React.FC = () => {
                       >
                         <div
                           style={{
-                            fontSize: "0.9rem",
+                            fontSize: windowWidth <= 768 ? "0.8rem" : "0.9rem",
                             fontWeight: "600",
                             opacity: "0.7",
                             marginBottom: "0.25rem",
@@ -455,12 +486,17 @@ const App: React.FC = () => {
             </div>
 
             {/* Right Column - Time Series Chart */}
-            <div style={{ flex: "1", minWidth: "450px" }}>
+            <div
+              style={{
+                flex: "1",
+                minWidth: windowWidth <= 768 ? "100%" : "450px",
+              }}
+            >
               <h2
                 style={{
                   color: "#1a202c",
-                  marginBottom: "2rem",
-                  fontSize: "2rem",
+                  marginBottom: windowWidth <= 768 ? "1.5rem" : "2rem",
+                  fontSize: windowWidth <= 768 ? "1.5rem" : "2rem",
                   fontWeight: "700",
                   letterSpacing: "-0.01em",
                   position: "relative",
@@ -480,11 +516,11 @@ const App: React.FC = () => {
                   background:
                     "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
                   borderRadius: "24px",
-                  padding: "2.5rem",
+                  padding: windowWidth <= 768 ? "1.5rem" : "2rem",
                   boxShadow:
                     "0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1)",
                   backdropFilter: "blur(20px)",
-                  height: "500px",
+                  height: windowWidth <= 768 ? "400px" : "500px",
                   border: "1px solid rgba(255, 255, 255, 0.2)",
                   position: "relative",
                   overflow: "hidden",

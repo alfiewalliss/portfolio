@@ -476,7 +476,7 @@ const App: React.FC = () => {
                             backgroundClip: "text",
                           }}
                         >
-                          {entry.totalDistance.toFixed(1)} km
+                          {entry.totalDistance.toFixed(2)} km
                         </div>
                       </div>
                     </div>

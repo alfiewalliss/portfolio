@@ -17,13 +17,12 @@ const idNameMap = {
   "52568829": "Sarah Dick",
   "55710489": "Lucy Jones",
   "83786875": "Shannon Honan",
-  "135110733": "Ella Ahmed",
   "80395176": "Ellis Tulloch",
 };
 
 interface LeaderboardEntry {
   id: string;
-  name: string;
+  name: string | null;
   totalDistance: number;
   activityCount: number;
   lastUpdated: string;
@@ -57,15 +56,14 @@ const App: React.FC = () => {
 
         return {
           id: athlete.id,
-          name:
-            idNameMap[athlete.id as keyof typeof idNameMap] ||
-            `Unknown (${athlete.id})`,
+          name: idNameMap[athlete.id as keyof typeof idNameMap] || null,
           totalDistance,
           activityCount: athlete.activities.length,
           lastUpdated: athlete.lastUpdated,
         };
       })
-      .sort((a, b) => b.totalDistance - a.totalDistance);
+      .sort((a, b) => b.totalDistance - a.totalDistance)
+      .filter((r) => r.name !== null);
   };
 
   const leaderboard = calculateLeaderboard();

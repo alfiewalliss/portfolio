@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, memo, useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -10,6 +10,21 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+// Add CSS keyframes for emergency pulsing animation
+const emergencyPulseKeyframes = `
+  @keyframes emergencyPulse {
+    0% {
+      box-shadow: 0 20px 40px rgba(255, 0, 0, 0.4), 0 0 0 1px rgba(255, 0, 0, 0.6), 0 0 25px rgba(255, 0, 0, 0.5);
+    }
+    50% {
+      box-shadow: 0 25px 50px rgba(255, 0, 0, 0.7), 0 0 0 2px rgba(255, 0, 0, 0.9), 0 0 40px rgba(255, 0, 0, 0.8);
+    }
+    100% {
+      box-shadow: 0 20px 40px rgba(255, 0, 0, 0.4), 0 0 0 1px rgba(255, 0, 0, 0.6), 0 0 25px rgba(255, 0, 0, 0.5);
+    }
+  }
+`;
+
 const idNameMap = {
   "52574369": "David Bloomfield",
   "46048265": "Tobi Adekanye",
@@ -20,15 +35,253 @@ const idNameMap = {
   "80395176": "Ellis Tulloch",
 };
 
-interface LeaderboardEntry {
-  id: string;
-  name: string | null;
-  totalDistance: number;
-  activityCount: number;
-  lastUpdated: string;
-}
+// Memoized chart component to prevent unnecessary re-renders
+const TimeSeriesChart = memo(
+  ({
+    timeSeriesData,
+    leaderboard,
+  }: {
+    timeSeriesData: any[];
+    leaderboard: any[];
+  }) => {
+    console.log("TimeSeriesChart rendering");
+    return (
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={timeSeriesData}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+          <XAxis
+            dataKey="date"
+            tick={{ fontSize: 12, fill: "#4a5568" }}
+            angle={-30}
+            textAnchor="end"
+            height={100}
+            interval="preserveStartEnd"
+            stroke="#718096"
+          />
+          <YAxis
+            label={{
+              value: "Cumulative Distance (km)",
+              angle: -90,
+              position: "insideLeft",
+              style: {
+                textAnchor: "middle",
+                fill: "#4a5568",
+                fontSize: "14px",
+              },
+            }}
+            tick={{ fontSize: 12, fill: "#4a5568" }}
+            stroke="#718096"
+          />
+          <Tooltip
+            contentStyle={{
+              background: "rgba(255, 255, 255, 0.95)",
+              border: "none",
+              borderRadius: "8px",
+              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
+              backdropFilter: "blur(10px)",
+              fontSize: "12px",
+              padding: "8px 12px",
+            }}
+            formatter={(value: any, name: string) => [
+              `${value.toFixed(1)} km`,
+              name,
+            ]}
+            labelFormatter={(label) => {
+              const date = new Date(label);
+              return `${date.toLocaleDateString("en-GB", {
+                month: "short",
+                day: "numeric",
+              })}`;
+            }}
+          />
+          <Legend
+            wrapperStyle={{
+              paddingTop: "0.5rem",
+              fontSize: "11px",
+              fontWeight: "500",
+            }}
+          />
+          {leaderboard.map((entry, index) => {
+            const colors = [
+              "#00b8a3", // Primary teal
+              "#dc3545", // High contrast red
+              "#007bff", // High contrast blue
+              "#6f42c1", // High contrast purple
+              "#fd7e14", // High contrast orange
+              "#28a745", // High contrast green
+              "#e83e8c", // High contrast pink
+              "#17a2b8", // High contrast cyan
+            ];
+            return (
+              <Line
+                key={entry.name || entry.id}
+                type="linear"
+                dataKey={entry.name || entry.id}
+                stroke={colors[index % colors.length]}
+                strokeWidth={3}
+                dot={{
+                  r: 5,
+                  fill: colors[index % colors.length],
+                  strokeWidth: 2,
+                  stroke: "#fff",
+                }}
+                activeDot={{
+                  r: 8,
+                  fill: colors[index % colors.length],
+                  strokeWidth: 3,
+                  stroke: "#fff",
+                  filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2))",
+                }}
+                style={{
+                  filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
+                }}
+              />
+            );
+          })}
+        </LineChart>
+      </ResponsiveContainer>
+    );
+  }
+);
+
+TimeSeriesChart.displayName = "TimeSeriesChart";
+
+// Separate component for countdown timer to prevent main component re-renders
+const CountdownTimer = memo(() => {
+  const [timeRemaining, setTimeRemaining] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
+
+  // Calculate time remaining until October 31st midnight
+  const calculateTimeRemaining = () => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const october31st = new Date(currentYear, 9, 31, 23, 59, 59, 999); // October is month 9 (0-indexed)
+
+    // If October 31st has passed this year, target next year
+    const targetDate =
+      october31st > now
+        ? october31st
+        : new Date(currentYear + 1, 9, 31, 23, 59, 59, 999);
+
+    const timeDiff = targetDate.getTime() - now.getTime();
+
+    if (timeDiff <= 0) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
+
+    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(
+      (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+    return { days, hours, minutes, seconds };
+  };
+
+  // Update countdown timer every second
+  useEffect(() => {
+    const updateTimer = () => {
+      const newTimeRemaining = calculateTimeRemaining();
+      setTimeRemaining((prevTime) => {
+        // Only update if the time has actually changed
+        if (
+          prevTime.days !== newTimeRemaining.days ||
+          prevTime.hours !== newTimeRemaining.hours ||
+          prevTime.minutes !== newTimeRemaining.minutes ||
+          prevTime.seconds !== newTimeRemaining.seconds
+        ) {
+          return newTimeRemaining;
+        }
+        return prevTime;
+      });
+    };
+
+    // Update immediately
+    updateTimer();
+
+    // Set up interval to update every second
+    const interval = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div
+      style={{
+        margin: "1rem auto 0 0",
+        textAlign: "center",
+        background:
+          "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
+        borderRadius: "16px",
+        padding: "1rem",
+        border: "1px solid rgba(255, 255, 255, 0.2)",
+        backdropFilter: "blur(10px)",
+        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "1.5rem",
+          flexWrap: "wrap",
+        }}
+      >
+        {[
+          { label: "Days", value: timeRemaining.days },
+          { label: "Hours", value: timeRemaining.hours },
+          { label: "Minutes", value: timeRemaining.minutes },
+          { label: "Seconds", value: timeRemaining.seconds },
+        ].map((item, index) => (
+          <div
+            key={item.label}
+            style={{
+              textAlign: "center",
+              minWidth: "80px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "2.5rem",
+                fontWeight: "800",
+                color: "#2d3748",
+                lineHeight: "1",
+                marginBottom: "0.25rem",
+                background: "linear-gradient(135deg, #00b8a3 0%, #007bff 100%)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              {item.value.toString().padStart(2, "0")}
+            </div>
+            <div
+              style={{
+                fontSize: "0.8rem",
+                fontWeight: "500",
+                color: "#718096",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              {item.label}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+});
+
+CountdownTimer.displayName = "CountdownTimer";
 
 const App: React.FC = () => {
+  console.log("App component rendering");
   const [data, setData] = useState<
     | {
         id: string;
@@ -44,8 +297,24 @@ const App: React.FC = () => {
   const [error, setError] = useState(null);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-  // Calculate leaderboard data
-  const calculateLeaderboard = (): LeaderboardEntry[] => {
+  // Inject CSS animation only once when component mounts
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      // Check if the style already exists to avoid duplicates
+      const existingStyle = document.getElementById(
+        "emergency-pulse-animation"
+      );
+      if (!existingStyle) {
+        const style = document.createElement("style");
+        style.id = "emergency-pulse-animation";
+        style.textContent = emergencyPulseKeyframes;
+        document.head.appendChild(style);
+      }
+    }
+  }, []); // Empty dependency array means this runs only once
+
+  // Memoize leaderboard calculation
+  const leaderboard = useMemo(() => {
     if (!data) return [];
 
     return data
@@ -64,12 +333,10 @@ const App: React.FC = () => {
       })
       .sort((a, b) => b.totalDistance - a.totalDistance)
       .filter((r) => r.name !== null);
-  };
+  }, [data]);
 
-  const leaderboard = calculateLeaderboard();
-
-  // Process data for cumulative time series chart
-  const processTimeSeriesData = () => {
+  // Memoize time series data calculation
+  const timeSeriesData = useMemo(() => {
     if (!data) return [];
 
     // Get all unique dates from all activities
@@ -113,9 +380,16 @@ const App: React.FC = () => {
     });
 
     return timeSeriesData;
-  };
+  }, [data]);
 
-  const timeSeriesData = processTimeSeriesData();
+  // Memoize chart props to prevent unnecessary re-renders
+  const chartProps = useMemo(
+    () => ({
+      timeSeriesData,
+      leaderboard,
+    }),
+    [timeSeriesData, leaderboard]
+  );
 
   // Handle window resize
   useEffect(() => {
@@ -183,9 +457,9 @@ const App: React.FC = () => {
             "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
           backdropFilter: "blur(20px)",
           border: "1px solid rgba(255, 255, 255, 0.2)",
-          padding: windowWidth <= 768 ? "2rem 0" : "3rem 0",
+          padding: windowWidth <= 768 ? "1.5rem 0" : "1.5rem 0 0 0",
           boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
-          marginBottom: windowWidth <= 768 ? "2rem" : "3rem",
+          marginBottom: "0.5rem",
           position: "relative",
           overflow: "hidden",
         }}
@@ -194,7 +468,7 @@ const App: React.FC = () => {
           style={{
             maxWidth: "1400px",
             margin: "0 auto",
-            padding: windowWidth <= 768 ? "0 1rem" : "0 2rem",
+            padding: windowWidth <= 768 ? "0 1rem" : "0 2rem 0 0",
             position: "relative",
             zIndex: 2,
           }}
@@ -214,6 +488,10 @@ const App: React.FC = () => {
           >
             Tech Running Leaderboard
           </h1>
+
+          {/* Countdown Timer */}
+          <CountdownTimer />
+
           <div
             style={{
               width: "60px",
@@ -318,167 +596,201 @@ const App: React.FC = () => {
                     overflow: "scroll",
                   }}
                 >
-                  {leaderboard.map((entry, index) => (
-                    <div
-                      key={entry.id}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: windowWidth <= 768 ? "1.25rem" : "2rem",
-                        background:
-                          index < 3
-                            ? `linear-gradient(135deg, ${
-                                index === 0
-                                  ? "#FFD700"
-                                  : index === 1
-                                  ? "#C0C0C0"
-                                  : "#CD7F32"
-                              } 0%, ${
-                                index === 0
-                                  ? "#FFA500"
-                                  : index === 1
-                                  ? "#A8A8A8"
-                                  : "#B8860B"
-                              } 100%)`
-                            : "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
-                        border:
-                          index < 3
-                            ? "none"
-                            : "1px solid rgba(255, 255, 255, 0.2)",
-                        borderRadius: "24px",
-                        boxShadow:
-                          index < 3
-                            ? "0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)"
-                            : "0 8px 32px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05)",
-                        backdropFilter: "blur(20px)",
-                        transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                        position: "relative",
-                        overflow: "hidden",
-                        cursor: "pointer",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform =
-                          "translateY(-8px) scale(1.02)";
-                        e.currentTarget.style.boxShadow =
-                          index < 3
-                            ? "0 32px 64px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.2)"
-                            : "0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform =
-                          "translateY(0) scale(1)";
-                        e.currentTarget.style.boxShadow =
-                          index < 3
-                            ? "0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)"
-                            : "0 8px 32px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05)";
-                      }}
-                    >
+                  {leaderboard.map((entry, index) => {
+                    const isLastPlace = index === leaderboard.length - 1;
+                    return (
                       <div
+                        key={entry.id}
                         style={{
                           display: "flex",
+                          justifyContent: "space-between",
                           alignItems: "center",
-                          gap: "1rem",
+                          padding: windowWidth <= 768 ? "1.25rem" : "2rem",
+                          background:
+                            index < 3
+                              ? `linear-gradient(135deg, ${
+                                  index === 0
+                                    ? "#FFD700"
+                                    : index === 1
+                                    ? "#C0C0C0"
+                                    : "#CD7F32"
+                                } 0%, ${
+                                  index === 0
+                                    ? "#FFA500"
+                                    : index === 1
+                                    ? "#A8A8A8"
+                                    : "#B8860B"
+                                } 100%)`
+                              : isLastPlace
+                              ? "linear-gradient(135deg, #FF0000 0%, #CC0000 100%)"
+                              : "linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
+                          border:
+                            index < 3
+                              ? "none"
+                              : isLastPlace
+                              ? "2px solid #FF0000"
+                              : "1px solid rgba(255, 255, 255, 0.2)",
+                          borderRadius: "24px",
+                          boxShadow:
+                            index < 3
+                              ? "0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)"
+                              : isLastPlace
+                              ? "0 20px 40px rgba(255, 0, 0, 0.4), 0 0 0 1px rgba(255, 0, 0, 0.6), 0 0 25px rgba(255, 0, 0, 0.5)"
+                              : "0 8px 32px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+                          backdropFilter: "blur(20px)",
+                          transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                          position: "relative",
+                          overflow: "hidden",
+                          cursor: "pointer",
+                          animation: isLastPlace
+                            ? "emergencyPulse 1.5s ease-in-out infinite"
+                            : "none",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform =
+                            "translateY(-8px) scale(1.02)";
+                          e.currentTarget.style.boxShadow =
+                            index < 3
+                              ? "0 32px 64px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.2)"
+                              : isLastPlace
+                              ? "0 32px 64px rgba(255, 0, 0, 0.5), 0 0 0 1px rgba(255, 0, 0, 0.7), 0 0 35px rgba(255, 0, 0, 0.6)"
+                              : "0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform =
+                            "translateY(0) scale(1)";
+                          e.currentTarget.style.boxShadow =
+                            index < 3
+                              ? "0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)"
+                              : isLastPlace
+                              ? "0 20px 40px rgba(255, 0, 0, 0.4), 0 0 0 1px rgba(255, 0, 0, 0.6), 0 0 25px rgba(255, 0, 0, 0.5)"
+                              : "0 8px 32px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05)";
                         }}
                       >
                         <div
                           style={{
-                            width: windowWidth <= 768 ? "44px" : "56px",
-                            height: windowWidth <= 768 ? "44px" : "56px",
-                            borderRadius: "50%",
-                            background:
-                              index < 3
-                                ? "rgba(255, 255, 255, 0.4)"
-                                : "linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)",
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: windowWidth <= 768 ? "1.2rem" : "1.5rem",
-                            fontWeight: "800",
-                            color: "#2d3748",
-                            boxShadow:
-                              index < 3
-                                ? "0 8px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)"
-                                : "0 8px 24px rgba(102, 126, 234, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
-                            border:
-                              index < 3
-                                ? "2px solid rgba(255, 255, 255, 0.3)"
-                                : "2px solid rgba(102, 126, 234, 0.2)",
-                            transition: "all 0.3s ease",
+                            gap: "1rem",
                           }}
                         >
-                          {index + 1}
-                        </div>
-                        <div>
                           <div
                             style={{
+                              width: windowWidth <= 768 ? "44px" : "56px",
+                              height: windowWidth <= 768 ? "44px" : "56px",
+                              borderRadius: "50%",
+                              background:
+                                index < 3
+                                  ? "rgba(255, 255, 255, 0.4)"
+                                  : "linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
                               fontSize:
-                                windowWidth <= 768 ? "1.1rem" : "1.4rem",
-                              fontWeight: "700",
-                              color: index < 3 ? "#2d3748" : "#1a202c",
-                              marginBottom: "0.5rem",
-                              letterSpacing: "-0.01em",
+                                windowWidth <= 768 ? "1.2rem" : "1.5rem",
+                              fontWeight: "800",
+                              color: "#2d3748",
+                              boxShadow:
+                                index < 3
+                                  ? "0 8px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)"
+                                  : "0 8px 24px rgba(102, 126, 234, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+                              border:
+                                index < 3
+                                  ? "2px solid rgba(255, 255, 255, 0.3)"
+                                  : "2px solid rgba(102, 126, 234, 0.2)",
+                              transition: "all 0.3s ease",
                             }}
                           >
-                            {entry.name}
+                            {index + 1}
                           </div>
+                          <div>
+                            <div
+                              style={{
+                                fontSize:
+                                  windowWidth <= 768 ? "1.1rem" : "1.4rem",
+                                fontWeight: "700",
+                                color:
+                                  index < 3
+                                    ? "#2d3748"
+                                    : isLastPlace
+                                    ? "#ffffff"
+                                    : "#1a202c",
+                                marginBottom: "0.5rem",
+                                letterSpacing: "-0.01em",
+                              }}
+                            >
+                              {entry.name}
+                            </div>
+                            <div
+                              style={{
+                                fontSize:
+                                  windowWidth <= 768 ? "0.8rem" : "0.9rem",
+                                color:
+                                  index < 3
+                                    ? "#4a5568"
+                                    : isLastPlace
+                                    ? "#ffcccc"
+                                    : "#4a5568",
+                                marginBottom: "0.5rem",
+                                fontWeight: "500",
+                              }}
+                            >
+                              {entry.activityCount} activities
+                            </div>
+                            <div
+                              style={{
+                                fontSize:
+                                  windowWidth <= 768 ? "0.7rem" : "0.8rem",
+                                color:
+                                  index < 3
+                                    ? "#3b3a39"
+                                    : isLastPlace
+                                    ? "#ffaaaa"
+                                    : "#718096",
+                                fontStyle: "italic",
+                                fontWeight: "400",
+                              }}
+                            >
+                              Updated:{" "}
+                              {new Date(entry.lastUpdated).toLocaleString()}
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          style={{
+                            fontSize: windowWidth <= 768 ? "1.4rem" : "1.8rem",
+                            fontWeight: "800",
+                            color: isLastPlace ? "#ffffff" : "#2d3748",
+                            textAlign: "right",
+                            letterSpacing: "-0.02em",
+                          }}
+                        >
                           <div
                             style={{
                               fontSize:
                                 windowWidth <= 768 ? "0.8rem" : "0.9rem",
-                              color: index < 3 ? "#4a5568" : "#4a5568",
-                              marginBottom: "0.5rem",
-                              fontWeight: "500",
+                              fontWeight: "600",
+                              opacity: isLastPlace ? "0.9" : "0.7",
+                              marginBottom: "0.25rem",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                              color: isLastPlace ? "#ffcccc" : "inherit",
                             }}
                           >
-                            {entry.activityCount} activities
+                            Total Distance
                           </div>
                           <div
                             style={{
-                              fontSize:
-                                windowWidth <= 768 ? "0.7rem" : "0.8rem",
-                              color: index < 3 ? "#3b3a39" : "#718096",
-                              fontStyle: "italic",
-                              fontWeight: "400",
+                              WebkitBackgroundClip: "text",
+                              backgroundClip: "text",
                             }}
                           >
-                            Updated:{" "}
-                            {new Date(entry.lastUpdated).toLocaleString()}
+                            {entry.totalDistance.toFixed(2)} km
                           </div>
                         </div>
                       </div>
-                      <div
-                        style={{
-                          fontSize: windowWidth <= 768 ? "1.4rem" : "1.8rem",
-                          fontWeight: "800",
-                          color: "#2d3748",
-                          textAlign: "right",
-                          letterSpacing: "-0.02em",
-                        }}
-                      >
-                        <div
-                          style={{
-                            fontSize: windowWidth <= 768 ? "0.8rem" : "0.9rem",
-                            fontWeight: "600",
-                            opacity: "0.7",
-                            marginBottom: "0.25rem",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.05em",
-                          }}
-                        >
-                          Total Distance
-                        </div>
-                        <div
-                          style={{
-                            WebkitBackgroundClip: "text",
-                            backgroundClip: "text",
-                          }}
-                        >
-                          {entry.totalDistance.toFixed(2)} km
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -524,100 +836,7 @@ const App: React.FC = () => {
                   overflow: "hidden",
                 }}
               >
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={timeSeriesData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                    <XAxis
-                      dataKey="date"
-                      tick={{ fontSize: 12, fill: "#4a5568" }}
-                      angle={-30}
-                      textAnchor="end"
-                      height={100}
-                      interval="preserveStartEnd"
-                      stroke="#718096"
-                    />
-                    <YAxis
-                      label={{
-                        value: "Cumulative Distance (km)",
-                        angle: -90,
-                        position: "insideLeft",
-                        style: {
-                          textAnchor: "middle",
-                          fill: "#4a5568",
-                          fontSize: "14px",
-                        },
-                      }}
-                      tick={{ fontSize: 12, fill: "#4a5568" }}
-                      stroke="#718096"
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        background: "rgba(255, 255, 255, 0.95)",
-                        border: "none",
-                        borderRadius: "8px",
-                        boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
-                        backdropFilter: "blur(10px)",
-                        fontSize: "12px",
-                        padding: "8px 12px",
-                      }}
-                      formatter={(value: any, name: string) => [
-                        `${value.toFixed(1)} km`,
-                        name,
-                      ]}
-                      labelFormatter={(label) => {
-                        const date = new Date(label);
-                        return `${date.toLocaleDateString("en-GB", {
-                          month: "short",
-                          day: "numeric",
-                        })}`;
-                      }}
-                    />
-                    <Legend
-                      wrapperStyle={{
-                        paddingTop: "0.5rem",
-                        fontSize: "11px",
-                        fontWeight: "500",
-                      }}
-                    />
-                    {leaderboard.map((entry, index) => {
-                      const colors = [
-                        "#00b8a3", // Primary teal
-                        "#dc3545", // High contrast red
-                        "#007bff", // High contrast blue
-                        "#6f42c1", // High contrast purple
-                        "#fd7e14", // High contrast orange
-                        "#28a745", // High contrast green
-                        "#e83e8c", // High contrast pink
-                        "#17a2b8", // High contrast cyan
-                      ];
-                      return (
-                        <Line
-                          key={entry.name}
-                          type="linear"
-                          dataKey={entry.name}
-                          stroke={colors[index % colors.length]}
-                          strokeWidth={3}
-                          dot={{
-                            r: 5,
-                            fill: colors[index % colors.length],
-                            strokeWidth: 2,
-                            stroke: "#fff",
-                          }}
-                          activeDot={{
-                            r: 8,
-                            fill: colors[index % colors.length],
-                            strokeWidth: 3,
-                            stroke: "#fff",
-                            filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2))",
-                          }}
-                          style={{
-                            filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
-                          }}
-                        />
-                      );
-                    })}
-                  </LineChart>
-                </ResponsiveContainer>
+                <TimeSeriesChart {...chartProps} />
               </div>
             </div>
           </div>

@@ -154,6 +154,7 @@ const CountdownTimer = memo(() => {
     minutes: 0,
     seconds: 0,
   });
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   // Calculate time remaining until October 31st midnight
   const calculateTimeRemaining = () => {
@@ -210,6 +211,16 @@ const CountdownTimer = memo(() => {
     return () => clearInterval(interval);
   }, []);
 
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <div
       style={{
@@ -228,8 +239,9 @@ const CountdownTimer = memo(() => {
         style={{
           display: "flex",
           justifyContent: "center",
-          gap: "1.5rem",
-          flexWrap: "wrap",
+          gap: windowWidth <= 768 ? "0.5rem" : "1.5rem",
+          flexWrap: windowWidth <= 768 ? "nowrap" : "wrap",
+          overflow: windowWidth <= 768 ? "hidden" : "visible",
         }}
       >
         {[
@@ -242,12 +254,13 @@ const CountdownTimer = memo(() => {
             key={item.label}
             style={{
               textAlign: "center",
-              minWidth: "80px",
+              minWidth: windowWidth <= 768 ? "50px" : "80px",
+              flex: windowWidth <= 768 ? "1" : "none",
             }}
           >
             <div
               style={{
-                fontSize: "2.5rem",
+                fontSize: windowWidth <= 768 ? "1.5rem" : "2.5rem",
                 fontWeight: "800",
                 color: "#2d3748",
                 lineHeight: "1",
@@ -262,7 +275,7 @@ const CountdownTimer = memo(() => {
             </div>
             <div
               style={{
-                fontSize: "0.8rem",
+                fontSize: windowWidth <= 768 ? "0.6rem" : "0.8rem",
                 fontWeight: "500",
                 color: "#718096",
                 textTransform: "uppercase",

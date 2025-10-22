@@ -5,12 +5,39 @@
     .filter((r) => r.entity === "Activity")
     .map((r) => {
       if (r.activity.type != "Run") return null;
+
+      var time = r.activity.stats[4].value
+        .replace("<abbr class='unit' title='hour'>h</abbr>", "")
+        .replace("<abbr class='unit' title='minute'>m</abbr>", "");
+
+      var hasSeconds = false;
+      if (time.includes("<abbr class='unit' title='second'>s</abbr>")) {
+        hasSeconds = true;
+        time = time.replace("<abbr class='unit' title='second'>s</abbr>", "");
+      }
+
+      time = time.split(" ");
+
+      if (hasSeconds) {
+        time.pop();
+      }
+
+      time = time
+        .map((r, index) => {
+          if (index === 0 && !hasSeconds) {
+            return parseInt(r) * 60;
+          }
+          return parseInt(r);
+        })
+        .reduce((a, b) => a + b, 0);
+
       return {
         distance: r.activity.stats[0].value.replace(
           "<abbr class='unit' title='kilometers'> km</abbr>",
           ""
         ),
         date: r.activity.startDate,
+        time: time,
       };
     })
     .filter((r) => r != null);
@@ -19,28 +46,45 @@
     .filter((r) => r.entity === "GroupActivity")
     .map((r) => {
       if (r.rowData.activities[0].type != "Run") return null;
+
+      var time = r.rowData.activities[0].stats[4].value
+        .replace("<abbr class='unit' title='hour'>h</abbr>", "")
+        .replace("<abbr class='unit' title='minute'>m</abbr>", "");
+
+      var hasSeconds = false;
+      if (time.includes("<abbr class='unit' title='second'>s</abbr>")) {
+        hasSeconds = true;
+        time = time.replace("<abbr class='unit' title='second'>s</abbr>", "");
+      }
+
+      time = time.split(" ");
+
+      if (hasSeconds) {
+        time.pop();
+      }
+
+      time = time
+        .map((r, index) => {
+          if (index === 0 && !hasSeconds) {
+            return parseInt(r) * 60;
+          }
+          return parseInt(r);
+        })
+        .reduce((a, b) => a + b, 0);
+
       return {
         distance: r.rowData.activities[0].stats[0].value.replace(
           "<abbr class='unit' title='kilometers'> km</abbr>",
           ""
         ),
         date: r.rowData.activities[0].start_date,
+        time: time,
       };
     })
     .filter((r) => r != null);
 
-  console.log(
-    "activity",
-    athleteProfile.appContext.preFetchedEntries.filter(
-      (r) => r.entity === "Activity"
-    )
-  );
-  console.log(
-    "activity",
-    athleteProfile.appContext.preFetchedEntries.filter(
-      (r) => r.entity === "GroupActivity"
-    )
-  );
+  console.log("activity", athleteProfile.appContext.preFetchedEntries);
+
   console.log("individualActivies", individualActivies);
   console.log("groupActivies", groupActivies);
 

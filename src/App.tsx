@@ -301,6 +301,7 @@ const App: React.FC = () => {
         activities: {
           distance: string;
           date: string;
+          time: number;
         }[];
         lastUpdated: string;
       }[]
@@ -326,6 +327,20 @@ const App: React.FC = () => {
     }
   }, []); // Empty dependency array means this runs only once
 
+  // Helper function to format time in hours and minutes
+  const formatTime = (totalMinutes: number): string => {
+    // Ensure we're working with a proper number
+    const minutes = Math.floor(Number(totalMinutes) || 0);
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = Math.floor(minutes % 60);
+
+    if (hours > 0) {
+      return `${hours}h ${remainingMinutes}m`;
+    } else {
+      return `${remainingMinutes}m`;
+    }
+  };
+
   // Memoize leaderboard calculation
   const leaderboard = useMemo(() => {
     if (!data) return [];
@@ -336,10 +351,16 @@ const App: React.FC = () => {
           return sum + parseFloat(activity.distance);
         }, 0);
 
+        const totalTime = athlete.activities.reduce((sum, activity) => {
+          const timeValue = Number(activity.time) || 0;
+          return sum + timeValue;
+        }, 0);
+
         return {
           id: athlete.id,
           name: idNameMap[athlete.id as keyof typeof idNameMap] || null,
           totalDistance,
+          totalTime,
           activityCount: athlete.activities.length,
           lastUpdated: athlete.lastUpdated,
         };
@@ -744,11 +765,27 @@ const App: React.FC = () => {
                                     : isLastPlace
                                     ? "#ffcccc"
                                     : "#4a5568",
-                                marginBottom: "0.5rem",
+                                marginBottom: "0.25rem",
                                 fontWeight: "500",
                               }}
                             >
                               {entry.activityCount} activities
+                            </div>
+                            <div
+                              style={{
+                                fontSize:
+                                  windowWidth <= 768 ? "0.7rem" : "0.8rem",
+                                color:
+                                  index < 3
+                                    ? "#4a5568"
+                                    : isLastPlace
+                                    ? "#ffaaaa"
+                                    : "#4a5568",
+                                marginBottom: "0.5rem",
+                                fontWeight: "500",
+                              }}
+                            >
+                              Total time: {formatTime(entry.totalTime)}
                             </div>
                             <div
                               style={{

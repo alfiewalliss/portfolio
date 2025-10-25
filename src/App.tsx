@@ -160,7 +160,7 @@ const CountdownTimer = memo(() => {
   const calculateTimeRemaining = () => {
     const now = new Date();
     const currentYear = now.getFullYear();
-    const october31st = new Date(currentYear, 9, 31, 23, 59, 59, 999); // October is month 9 (0-indexed)
+    const october31st = new Date(currentYear, 9, 31, 11, 59, 59, 999); // October is month 9 (0-indexed)
 
     // If October 31st has passed this year, target next year
     const targetDate =

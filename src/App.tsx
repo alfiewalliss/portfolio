@@ -35,6 +35,49 @@ const idNameMap = {
   "80395176": "Ellis Tulloch",
 };
 
+// Custom tooltip component that sorts entries by distance (highest first)
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    // Sort payload by value in descending order (highest distance first)
+    const sortedPayload = [...payload].sort((a, b) => b.value - a.value);
+
+    return (
+      <div
+        style={{
+          background: "rgba(255, 255, 255, 0.95)",
+          border: "none",
+          borderRadius: "8px",
+          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
+          backdropFilter: "blur(10px)",
+          fontSize: "12px",
+          padding: "8px 12px",
+        }}
+      >
+        <p style={{ margin: "0 0 8px 0", fontWeight: "600", color: "#2d3748" }}>
+          {new Date(label).toLocaleDateString("en-GB", {
+            month: "short",
+            day: "numeric",
+          })}
+        </p>
+        {sortedPayload.map((entry, index) => (
+          <p
+            key={entry.dataKey}
+            style={{
+              margin: "4px 0",
+              color: entry.color,
+              fontWeight: "500",
+            }}
+          >
+            <span style={{ fontWeight: "600" }}>{entry.name}:</span>{" "}
+            {entry.value.toFixed(1)} km
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
 // Memoized chart component to prevent unnecessary re-renders
 const TimeSeriesChart = memo(
   ({
@@ -72,28 +115,7 @@ const TimeSeriesChart = memo(
             tick={{ fontSize: 12, fill: "#4a5568" }}
             stroke="#718096"
           />
-          <Tooltip
-            contentStyle={{
-              background: "rgba(255, 255, 255, 0.95)",
-              border: "none",
-              borderRadius: "8px",
-              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
-              backdropFilter: "blur(10px)",
-              fontSize: "12px",
-              padding: "8px 12px",
-            }}
-            formatter={(value: any, name: string) => [
-              `${value.toFixed(1)} km`,
-              name,
-            ]}
-            labelFormatter={(label) => {
-              const date = new Date(label);
-              return `${date.toLocaleDateString("en-GB", {
-                month: "short",
-                day: "numeric",
-              })}`;
-            }}
-          />
+          <Tooltip content={<CustomTooltip />} />
           <Legend
             wrapperStyle={{
               paddingTop: "0.5rem",

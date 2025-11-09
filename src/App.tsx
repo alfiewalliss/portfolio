@@ -267,10 +267,22 @@ const CountdownTimer = memo(() => {
         }}
       >
         {[
-          { label: "Days", value: timeRemaining.days },
-          { label: "Hours", value: timeRemaining.hours },
-          { label: "Minutes", value: timeRemaining.minutes },
-          { label: "Seconds", value: timeRemaining.seconds },
+          {
+            label: "Days",
+            value: timeRemaining.days > 31 ? 0 : timeRemaining.days,
+          },
+          {
+            label: "Hours",
+            value: timeRemaining.days > 31 ? 0 : timeRemaining.hours,
+          },
+          {
+            label: "Minutes",
+            value: timeRemaining.days > 31 ? 0 : timeRemaining.minutes,
+          },
+          {
+            label: "Seconds",
+            value: timeRemaining.days > 31 ? 0 : timeRemaining.seconds,
+          },
         ].map((item, index) => (
           <div
             key={item.label}
@@ -588,7 +600,7 @@ const App: React.FC = () => {
         style={{
           maxWidth: "1400px",
           margin: "0 auto",
-          padding: windowWidth <= 768 ? "0 1rem 2rem" : "0 2rem 2rem",
+          padding: windowWidth <= 768 ? "0 1rem 2rem" : "0 2rem 0px 2rem",
         }}
       >
         {data?.length === 0 ? (
@@ -808,23 +820,6 @@ const App: React.FC = () => {
                               }}
                             >
                               Total time: {formatTime(entry.totalTime)}
-                            </div>
-                            <div
-                              style={{
-                                fontSize:
-                                  windowWidth <= 768 ? "0.7rem" : "0.8rem",
-                                color:
-                                  index < 3
-                                    ? "#3b3a39"
-                                    : isLastPlace
-                                    ? "#ffaaaa"
-                                    : "#718096",
-                                fontStyle: "italic",
-                                fontWeight: "400",
-                              }}
-                            >
-                              Updated:{" "}
-                              {new Date(entry.lastUpdated).toLocaleString()}
                             </div>
                           </div>
                         </div>
